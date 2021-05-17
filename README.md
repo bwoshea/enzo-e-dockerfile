@@ -77,6 +77,9 @@ mkdir enzo-e-data
 docker run -it --name enzo-e-mount --mount type=bind,source="$(pwd)"/enzo-e-data,target=/enzo-e-data enzo-e-container /bin/bash
 ```
 
+Note that the `"$(pwd)"` portion of the command line above will work
+for bash/zsh, but probably not behave correctly for tcsh/csh (or 
+other similar shells).  If you get an error, use the complete path.
 You can then take the outputs from the Enzo-E HelloWorld simulation in
 your Docker image and copy them into that directory, where they will
 automagically appear on your own computer (and you can move data the
