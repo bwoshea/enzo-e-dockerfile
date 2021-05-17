@@ -74,7 +74,7 @@ creates the directory `/enzo-d-data` inside of it:
 ```
 mkdir enzo-e-data
 
-docker run -it --name enzo-e-mount --mount type=bind,source="$(pwd)"/enzo-e-data,target=/enzo-e-data enzo-e-volume /bin/bash
+docker run -it --name enzo-e-mount --mount type=bind,source="$(pwd)"/enzo-e-data,target=/enzo-e-data enzo-e-container /bin/bash
 ```
 
 You can then take the outputs from the Enzo-E HelloWorld simulation in
