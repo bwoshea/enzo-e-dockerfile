@@ -8,12 +8,27 @@ RUN apt-get install -y wget bc csh libhdf5-serial-dev gfortran libtool-bin \
    libpapi-dev libpng-dev zlib1g-dev libboost-all-dev python3 git python3-venv \
    build-essential vim
 
-# Set up environmental variables we're going to need
+# Set up environmental variables we're going to need!
+
 # Note that CELLO_PREC can be set to 'single' or 'double'
-ENV USER_HOME /root
+# to compile the code in 32-bit vs. 64-bit precision throughout.
+#
+ENV CELLO_PREC double
+
+# You can update the Charm version if you need to; look on the web
+# at http://charm.cs.illinois.edu/distrib/ to see what the most current
+# version is, and modify the number accordingly.  Look at the
+# "make charm++: chunk down below and modify that if file formats change.
+#
 ENV CHARM_VER 6.10.2
+
+
+#
+# Parameters below this comment should not be changed unless you're very
+# confident
+#
+ENV USER_HOME /root
 ENV CELLO_ARCH linux_gnu
-ENV CELLO_PREC single 
 ENV LD_LIBRARY_PATH $USER_HOME/local/lib:$LD_LIBRARY_PATH
 ENV CHARM_ARGS ++local
 ENV HDF5_INC /usr/include/hdf5/serial
