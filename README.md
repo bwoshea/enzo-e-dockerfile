@@ -17,10 +17,13 @@ compile and execute.
    system image and install all of the necessary software (including
    Charm++, Grackle, and Enzo-E).  Assuming no packages are cached
    locally, this will take 5-20 minutes on a reasonably modern laptop
-   and require approximately 1.5 GB of space (which is primarily taken
-   up with the various packages that are being installed).  Once this
+   and require approximately 1.5 GB of space, which is primarily taken
+   up with the various packages that are being installed.  Once this
    is done, you will now have a Docker image called
-   `enzo-e-container`.
+   `enzo-e-container`.  Note that the default code precision is 64-bit;
+   if you'd like to compile Enzo-E/Cello in 32-bit, edit the
+   Dockerfile to change the variable `CELLO_PREC` from `double` to
+   `single`.
 4. In the same directory, type `docker run -it enzo-e-container
    /bin/bash` at the command line.  This will start up a bash
    environment within docker so you can experiment with Enzo-E.
