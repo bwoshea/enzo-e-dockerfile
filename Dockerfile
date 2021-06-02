@@ -68,11 +68,8 @@ RUN cd $USER_HOME ; \
     make ; \
     make install
 
-# make Enzo-E (master branch)
+# make Enzo-E (main branch)
 RUN cd $USER_HOME; \
-    git clone -b master https://github.com/enzo-project/enzo-e ; \
+    git clone -b main https://github.com/enzo-project/enzo-e ; \
     cd enzo-e ; \
     make
-
-
-
