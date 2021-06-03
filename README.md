@@ -96,11 +96,7 @@ other similar shells).  If you get an error, write out the complete path.
 You can then take the outputs from the Enzo-E HelloWorld simulation in
 your Docker image and copy them into that directory, where they will
 automagically appear on your own computer (and you can move data the
-other way as well).  If you modify Enzo-E's parameter files to point
-to the correct place, you can also write data directly to the
-`/enzo-e-data` directory within the Docker image.
+other way as well).
 
-Note that [Docker Volumes](https://docs.docker.com/storage/volumes/)
-are a more fully-featured solution.  See `DOCKER_NOTES.md` for more 
-information about sharing data between the host computer and the Docker
-container.
+See `DOCKER_NOTES.md` for more information about sharing data (and code!)
+between the host computer and the Docker container.
