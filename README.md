@@ -1,13 +1,17 @@
 # Dockerfile for Enzo-E
 
-This docker file is inspired by the CircleCI config.yml file in the
+This Dockerfile is inspired by the CircleCI config.yml file in the
 Enzo-E repository.  The goal goal is to make it easier for new users
 to get up and running with the code by creating a "container"
-(effectively a virtual machine on your computer) where Enzo-E will
-compile and execute.
+(effectively a virtual machine on your computer) where Enzo-E and its
+dependencies, Charm++ and Grackle, will compile and execute.
+
+The goal of this file is to quickly get you started.  The file 
+`DOCKER_NOTES.md`, which can be found in this directory, has more 
+extensive information about using Docker.
 
 
-## Instructions for how to create the container
+## Creating a Docker image
 
 1. Download and install [Docker](https://docs.docker.com/get-docker/).
 2. Make a directory and put the Dockerfile from this repository into it. 
@@ -24,11 +28,15 @@ compile and execute.
    if you'd like to compile Enzo-E/Cello in 32-bit, edit the
    Dockerfile to change the variable `CELLO_PREC` from `double` to
    `single`.
-4. In the same directory, type `docker run -it enzo-e-container
-   /bin/bash` at the command line.  This will start up a bash
-   environment within docker so you can experiment with Enzo-E.
-   
 
+
+## Starting up your docker container and running Enzo-E
+
+Once you've created your docker image, type 
+`docker run -it enzo-e-container /bin/bash`
+at your system's command line.  This will start up a bash
+environment within docker so you can experiment with Enzo-E.
+   
 You can then run Enzo-E in the Docker container by doing the following:
 
 ```
@@ -50,6 +58,7 @@ want to reattach the container that you just left, you would type
 out the hash ID for the container you just exited, restart it, and
 then reattach it to your terminal.
 
+
 ## Managing data
 
 If you want to copy data into or out of a container, you use the
@@ -64,15 +73,16 @@ want to move around multiple files the easiest thing to do is put them
 in a directory and copy that.
 
 If you are going to be using Enzo-E for quite a bit of
-experimentation, you will probably want to use a
+experimentation within Docker, you will probably want to use a
 [bind mount](https://docs.docker.com/storage/bind-mounts/) to create a
-directory that exists on both your computer and in the docker image.
+directory that exists on both your host computer and in the Docker image.
 You have to actually make the local directory before you make a bind
-mount, and then you point toward it when you run the docker image.  An
+mount, and then you point toward it when you run the Docker image.  An
 example of how to do so is below, which makes a new directory
-`enzo-e-data` in your current working directory (but it does not have
-to be!) and then starts the container we've already created and
-creates the directory `/enzo-d-data` inside of it:
+`enzo-e-data` in your host machine's current working directory (but it 
+does not have to be in the current directory!) and then starts the 
+container we've already created andcreates the directory `/enzo-e-data` 
+inside of it:
 
 ```
 mkdir enzo-e-data
@@ -82,7 +92,7 @@ docker run -it --name enzo-e-mount --mount type=bind,source="$(pwd)"/enzo-e-data
 
 Note that the `"$(pwd)"` portion of the command line above will work
 for bash/zsh, but probably not behave correctly for tcsh/csh (or 
-other similar shells).  If you get an error, use the complete path.
+other similar shells).  If you get an error, write out the complete path.
 You can then take the outputs from the Enzo-E HelloWorld simulation in
 your Docker image and copy them into that directory, where they will
 automagically appear on your own computer (and you can move data the
@@ -90,20 +100,7 @@ other way as well).  If you modify Enzo-E's parameter files to point
 to the correct place, you can also write data directly to the
 `/enzo-e-data` directory within the Docker image.
 
-Note that Docker [Volumes](https://docs.docker.com/storage/volumes/)
-are a more fully-featured solution, but probably not something we need
-here.
-
-## Running on a supercomputer
-
-While Docker is awesome, many supercomputing centers do not allow
-users to run Docker containers through Docker itself, because it
-requires more priveleged access to the machine that most
-administrators are willing to share.  Fortunately,
-[Singularity](https://sylabs.io/) is a container environment that
-works on supercomputers, allows for performant multi-node execution,
-provides similar encapsulation, and (most importantly for us) can use
-Docker image files.  See the
-[Singularity documentation](https://sylabs.io/docs/)
-for documentation.  This documentation will be updated at some point soon
-with instructions for how to set up an Enzo-E Singularity instance!
+Note that [Docker Volumes](https://docs.docker.com/storage/volumes/)
+are a more fully-featured solution.  See `DOCKER_NOTES.md` for more 
+information about sharing data between the host computer and the Docker
+container.

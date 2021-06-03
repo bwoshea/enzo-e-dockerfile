@@ -1,0 +1,205 @@
+# Some notes on using Docker
+
+The goal of this document is to complement the `README.md` file found in this directory.  It provides a brief introduction to Docker and to a variety of Docker commands, and suggests potential workflows that might be useful as you work with Enzo-E.
+
+## What is Docker and why is it useful?
+
+[Docker](https://www.docker.com/) is a platform that allows developers to package and execute applications in an environment called a "container," which is isolated in critical ways from the system that it runs on.  In particular, containers can have their own operating system, software, and supporting data, and are isolated from the host machine's OS.  This is an important point - it means that containers provide a consistent and reliable environment in which one can develop software.  This is useful for software that has dependencies that are non-trivial to compile and run on particular operating systems (e.g., Charm++ on macOS).  This is the primary reason that we have set up a Docker instance - it makes it much easier for new users and developers to get the code up and running, which is currently a major pain point with Enzo-E.
+
+It is worth noting that the terms "container" and "virtual machine" are sometimes used interchangeably, but [they are not the same thing](https://www.backblaze.com/blog/vm-vs-containers/).  The crucial difference is that virtual machines (VMs) typically virtualize (i.e., emulate) an entire computer including the hardware and run processes within that virtual machine, whereas containers require only the software necessary to run a specific program (e.g., the necessary components of an OS, libraries, compilers, etc.) and then run processes directly on the host computer.  This generally means that containers require fewer system resources than VMs in terms of disk space and memory, are much quicker to start up, and generally are more performant. This also means that you can run more containers than VMs on a given host machine.
+
+**Potentially useful resources:**
+
+* [Intro to Docker, Docker containers, and Virtual Machines (Video; ~9 minutes)](https://www.youtube.com/watch?v=JSLpG_spOBM)
+* [Why Docker? (Text; Basically a sales pitch, but informative)](https://www.docker.com/why-docker)
+* [Docker Tutorial for Beginners (Video; ~2 hours)](https://www.youtube.com/watch?v=fqMOX6JJhGo)
+* [Docker documentation (text)](https://docs.docker.com/)
+* [Getting started with docker (text; within Docker docs)](https://docs.docker.com/get-started/overview/)
+
+## Getting help
+
+In addition to the [Docker documentation](https://docs.docker.com/) (which is extensive and high-quality) and Stack Overflow's [Docker section](https://stackoverflow.com/questions/tagged/docker) (which is incredibly helpful), Docker itself has great command-line help.  You can type:
+
+```
+docker --help
+```
+
+to get a listing of Docker options and commands.  If you want to know more about a specific command, including optional flags or arguments, you can type:
+
+```
+docker COMMAND --help
+```
+
+
+## The Dockerfile and Docker images
+
+A Dockerfile is a text file that contains the instructions required to build a Docker image, including the desired operating system components, libraries and other tools, and applications.  It's useful for users to have this as a text file rather than a binary Docker image, because (1) it's much smaller (kilobytes as opposed to 100s of MB to ~1 GB) and it also allows you to easily update parts of the file to, e.g., use an additional software package, change the base container, or point to a different branch or fork of the code you're working on.
+
+Note that you can have multiple Docker containers running at the same time on your system, each containing different software and/or operating systems - this is a **very** useful capability for code development!
+
+### Building a Docker image
+
+You can build a Docker image using a Dockerfile on your own computer by downloading a Dockerfile, [installing Docker](https://docs.docker.com/get-docker/), moving to the directory where the Dockerfile exists at the command line, and then typing:
+
+```
+docker build -t enzo-e-container .
+```
+
+Note that this will create a Docker image that is tagged `enzo-e-container`, and will look in the current working directory (`.`) for the Dockerfile.  You can specify other directories, a non-standard Dockerfile name (i.e., something other than the default name of `Dockerfile`), Dockerfiles in different directories, and other things as well.  Just type `docker build --help` for more information.
+
+The above command can take several minutes to run, depending on the speed of your system and your network connection.  Once it is done you will have a Docker image named `enzo-e-container`, which is now ready to run!  
+
+**Potentially useful resources:**
+
+* [What is a Dockerfile?  (blog post)](https://www.cloudbees.com/blog/what-is-a-dockerfile/)
+* [Dockerfile reference docs](https://docs.docker.com/engine/reference/builder/)
+* [Best practices for writing Dockerfiles](https://docs.docker.com/develop/develop-images/dockerfile_best-practices/)
+
+
+## Running a Docker container
+
+You can use your new Docker image to start up a container and get bash command line access to it by typing the following at your system's command line:
+
+```
+docker run -it enzo-e-container /bin/bash
+```
+
+The `-it` flag is equivalent to `-i -t`, and tells Docker that this is an interactive container (`-i`) and allows you to connect to it via a terminal (`-t`).  Adding `/bin/bash` after the container name starts up the container with a bash command line.
+
+Once you have done this you can then run Enzo-E in this container, as described in `README.md`.  Note that when you exit the Docker container (i.e., exit the bash shell you have just started), **this does not actually delete the Docker container you've started** - it just detaches that container from the command line and stops it!  If you execute the `docker run` command listed above another time it will start a NEW container that will not include any changes you've made; you will then have two containers running using the same system image.  You can also have multiple containers running using multiple system images - just make sure to give them distinct names!  (`docker run` has a `--name <my_chosen_name>` option, which is extremely handy for this purpose - otherwise, Docker generates a random and not particularly useful name for each container.) 
+
+Note that there are good reasons to do this deliberately - for example, you may want to have containers with different operating systems, different versions of the code you're working with, etc. for development purposes.  However, it's useful to give your containers distinct names with the `--name` option so that you don't have to guess which container is which!
+
+If you want to reattach a stopped (but not killed) container to your terminal, you can type `docker ps -a` to see the list of existing containers at the command line.  Once you have found the container ID of the container you wish to reattach, you can type
+`docker start <container ID> ; docker attach <container ID>` to restart the container and
+then reattach it to your terminal.  You can also start a container and allow it to run in the background without reattaching it by just using the first command (`docker start <container ID>`).
+
+You can stop a running container with the `docker stop <container ID>` command, which will attempt to gracefully stop the processes running within it before stopping the container after 10 seconds.  If that doesn't work, you can also kill the container with `docker kill <container ID>`, which is analogous to the Unix/Linux `kill -9 <process ID>` command and stops it instantly.
+
+**It is crucial to understand what happens to data in Docker containers,** as this is the origin of many issues that people have with containers. If you stop (or pause) a Docker container, you will not lose any data that is written to disk within that container.  **If you delete a Docker container, any changes from the original image will be lost!**
+
+**Potentially useful resources:**
+
+* [Docker command line reference](https://docs.docker.com/engine/reference/commandline/docker/)
+
+
+## Managing data and data movement
+=
+By default, processes running in Docker containers can only see data inside of that container. While this is generally a useful property, there are many reasons that one might need to share files or directories between the container and its host computer.  There are several ways to do this.
+
+### Copying data
+
+If you want to copy data into or out of a container, you use the
+[`docker cp`](https://docs.docker.com/engine/reference/commandline/cp/)
+command.  Here's the syntax for copying from the directory SRC_PATH in the container to DEST_PATH on the host computer:
+
+`docker cp <container id>:SRC_PATH DEST_PATH`
+
+You can also do this the other way around, and copy from the host to the container.  Container paths are relative to the container's root directory, and host paths can be relative or absolute.  Docker's cp command copies recursively by default.
+
+Note that `docker cp` does not currently support wildcards, so if you
+want to move around multiple files the easiest thing to do is put them
+in a directory and copy that.  You can also use the tar command to copy multiple files into a running container (see [this example](https://stackoverflow.com/questions/22907231/how-to-copy-files-from-host-to-docker-container) on Stack Overflow).
+
+### Mounting directories
+
+If you are going to be using your Docker container for significant amounts
+of
+experimentation, you will probably want an easier way to move data back and forth.  One way to do this is to use a
+[bind mount](https://docs.docker.com/storage/bind-mounts/) to create a
+directory that exists on both the host computer and in the Docker image.
+You have to actually make the local directory before you make a bind
+mount, and then you point toward it when you run the docker image.  An
+example of how to do so is below, which makes a new directory
+`enzo-e-data` in your current working directory (but it does not have
+to be!) and then starts the container we've already created and
+creates the directory `/enzo-e-data` inside of it:
+
+```
+mkdir enzo-e-data
+
+docker run -it --name enzo-e-mount --mount type=bind,source="$(pwd)"/enzo-e-data,target=/enzo-e-data enzo-e-container /bin/bash
+```
+
+Note that the `"$(pwd)"` portion of the command line above will work
+for bash/zsh, but probably not behave correctly for tcsh/csh (or 
+other similar shells).  If you get an error, use the complete path.
+Any data copied into the host computer's enzo-e-data diretory or into the container's `/enzo-e-data` directory will appear in the other one, so you can move data back and forth.   If you modify Enzo-E's parameter files to point
+to the correct place, you can also write data directly to the
+`/enzo-e-data` directory within the Docker image, and have it appear on your local machine.
+
+Note that **mounting a non-empty directory on the container will have unintuitive behavior**.  The existing contents of the directory within
+the container are hidden by the bind mount, which is at best confusing and at worst will break the container or render it non-functional for your purposes.  If you want to have more fully-featured capabilities for data sharing, use Docker volumes (discussed below).
+
+### Docker volumes
+
+
+Note that Docker [Volumes](https://docs.docker.com/storage/volumes/)
+are a more fully-featured solution, but probably not something we need
+here.
+
+
+
+
+
+
+**Potentially useful resources:**
+
+* [Documentation for `docker cp`](https://docs.docker.com/engine/reference/commandline/cp/)
+* [Documentation for bind mounts](https://docs.docker.com/storage/bind-mounts/)
+* [Documentation for volumes](https://docs.docker.com/storage/volumes/)
+
+
+
+## Cleaning up after yourself
+
+While Docker is useful, it can leave a lot of detritus on the system.  For example, if you run the same Dockerfile more than once you may notice that many of the installed packages are cached locally, which may be undesirable if you are testing new or modified Dockerfiles.   You may also find that you have multiple old images on the system, or other Docker resources such as networks.  To delete dangling resources (i.e., those that are not associated with a running container) type the following at the command line:
+
+```
+docker system prune
+```
+
+You can remove everything (including effectively all resources not currently being used, including volumes), with:
+
+```
+docker system prune -a --volumes
+```
+
+**Be very careful with pruning your system!**  If you just want to remove a single system image, you can get a list of all of your Docker images with:
+
+```
+docker images -a
+```
+
+and then remove the image you wish to get rid of with:
+
+```
+docker rmi <IMAGE ID>
+```
+
+If Docker argues with you, you can force this with the `-f` argument (but should be cautious about doing so).
+
+**Potentially useful resources:**
+
+* [system prune documentation](https://docs.docker.com/engine/reference/commandline/system_prune/)
+* [docker system documentation](https://docs.docker.com/engine/reference/commandline/system/) 
+* [Tutorial on removing Docker images and volumes](https://www.digitalocean.com/community/tutorials/how-to-remove-docker-images-containers-and-volumes)
+* [Stack Overflow discussion of 
+
+
+
+## Some other information about using Docker containers 
+
+If you use [Visual Studio Code](https://code.visualstudio.com/), it has an extension that will allow you to [develop inside a Docker container](https://code.visualstudio.com/docs/remote/containers) using VSCode's full feature set.
+
+While Docker is incredibly useful, many supercomputing centers do not allow
+users to run Docker containers through Docker itself because it
+requires more priveleged access to the machine than most
+system administrators are willing to share.  Fortunately,
+[Singularity](https://sylabs.io/) is a container environment that
+works on supercomputers, allows for performant multi-node execution,
+provides similar encapsulation, and (most importantly for us) can use
+Docker image files.  See the
+[Singularity documentation](https://sylabs.io/docs/)
+for documentation about Sinularity, and consult your local supercomputing center's documentation for instructions on how to load and use it there.
+
