@@ -30,12 +30,12 @@ extensive information about using Docker.
    `single`.
 
 
-## Starting up your docker container and running Enzo-E
+## Starting up your Docker container and running Enzo-E
 
-Once you've created your docker image, type 
+Once you've created your Docker image, type 
 `docker run -it enzo-e-container /bin/bash`
 at your system's command line.  This will start up a bash
-environment within docker so you can experiment with Enzo-E.
+environment within Docker so you can experiment with Enzo-E.
    
 You can then run Enzo-E in the Docker container by doing the following:
 

@@ -220,7 +220,7 @@ move data back and forth.  One way to do this is to use a
 [bind mount](https://docs.docker.com/storage/bind-mounts/) to create a
 directory that exists on both the host computer and in the Docker
 image.  You have to actually make the local directory before you make
-a bind mount, and then you point toward it when you run the docker
+a bind mount, and then you point toward it when you run the Docker
 image.  An example of how to do so is below, which makes a new
 directory `enzo-e-data` in your current working directory (but it does
 not have to be!) and then starts the container we've already created
@@ -287,7 +287,7 @@ This can in principle be done with as many directories as you want.
 Furthermore, **note that a given directory on the host machine can
 only be used by a single container at a time!**
 
-### Docker volumes
+### Docker Volumes
 
 Docker [Volumes](https://docs.docker.com/storage/volumes/) are a more
 fully-featured solution than bind mounts, and work reasonably well on
@@ -363,7 +363,6 @@ If you use [Visual Studio Code](https://code.visualstudio.com/), it
 has an extension that will allow you to
 [develop inside a Docker container](https://code.visualstudio.com/docs/remote/containers)
 using VSCode's full feature set.
-
 
 While Docker is incredibly useful, many supercomputing centers do not
 allow users to run Docker containers through Docker itself because it
